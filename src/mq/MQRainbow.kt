@@ -19,11 +19,11 @@ class RainbowKeygen(var N: Int = 32, var U: Int = 5, var K: Int = 8, val save: S
     private var L2inv: Array<Array<Int>> = L2Affine["lInverse"]!!
     private var b2: Array<Int> = L2Affine["b"]!![0]
 
-    private var publicKey = PublicKeyClass(N, V[0], K)
-    private val privateKey = PrivateKeyClass()
+    var publicKey = PublicKeyClass(N, V[0], K)
+    val privateKey = PrivateKeyClass()
 
     init {
-        println("MQRainbow: init block")
+        println("MQRainbow: Init. block")
         if (debug)
             println("MQRainbow: Initialised with n :$N, k :$K, u :$U")
 
@@ -305,7 +305,7 @@ class RainbowKeygen(var N: Int = 32, var U: Int = 5, var K: Int = 8, val save: S
         var pcount = 0
 
         if(debug)
-            println("  Generating polynomial...")
+            println("->Generating polynomial...")
 
         for(_i in 0 until U - 1) {
             val vl = F_layers[_i][0]["alphas"]!![0].size
@@ -319,7 +319,7 @@ class RainbowKeygen(var N: Int = 32, var U: Int = 5, var K: Int = 8, val save: S
 
         // Composition of L1 and F * L2
         if(debug)
-            println("  Composition of L1 and F * L2...")
+            println("->Composition of L1 and F * L2...")
 
         val tempQuadratic: Array<Array<Array<Int>>> = Array(N - V[0]) {Array(N) {Array(N) {0}}}
         val tempLinear: Array<Array<Int>> = Array(N - V[0]) {Array(N) {0}}
@@ -334,12 +334,12 @@ class RainbowKeygen(var N: Int = 32, var U: Int = 5, var K: Int = 8, val save: S
                         L1[i][j]
                     )
                 )
-
+                /*
                 for (pl:Int in polynomial.linear[j]) {
                     print("$pl ")
                 }
                 println()
-
+                */
 
                 tempLinear[i] = GF256.addVectors(
                     tempLinear[i],
@@ -362,7 +362,7 @@ class RainbowKeygen(var N: Int = 32, var U: Int = 5, var K: Int = 8, val save: S
 
         // Assign the computed values for L1 * F * L2
         if(debug)
-            println("-->Assign the computed values for L1 * F * L2...")
+            println("->Assign the computed values for L1 * F * L2...")
 
         polynomial.quadratic = tempQuadratic
         polynomial.linear = tempLinear
@@ -370,7 +370,7 @@ class RainbowKeygen(var N: Int = 32, var U: Int = 5, var K: Int = 8, val save: S
 
         // Compactation
         if(debug)
-            println("-->Compactation")
+            println("->Compactation")
 
         val compactQuads = Array(polynomial.quadratic.size) {ArrayList<Int>()}
         for(i in 0 until compactQuads.size) {
@@ -408,7 +408,7 @@ class RainbowKeygen(var N: Int = 32, var U: Int = 5, var K: Int = 8, val save: S
 
     fun generatePrivatekey(save: String = "") {
         if(debug)
-            println("Generating public key...")
+            println("MQRainbow: Generating Private key...")
 
         privateKey.setL1(L1, L1inv)
         privateKey.setL2(L2, L2inv)
@@ -427,14 +427,14 @@ class RainbowKeygen(var N: Int = 32, var U: Int = 5, var K: Int = 8, val save: S
         */
 
         if(debug)
-            println("-->Done")
+            println("->Done")
 
     }
 
     // Generates Y or the set of targets from the hash of the message.
     fun generateTargets(n: Int, v0: Int, k: Int, message: String): ArrayList<Int> {
         if(debug)
-            println("Generating targets...")
+            println("MQRainbow: Generating targets...")
 
         // TODO: Reemplazar siguientes lineas.
         // h = hashlib.new('ripemd160')
@@ -443,13 +443,13 @@ class RainbowKeygen(var N: Int = 32, var U: Int = 5, var K: Int = 8, val save: S
         // Las lineas anteriores hashean el mensaje, no se si es algo necesario, o si afecta el resultado final.
 
         if(debug)
-            println("-->Hashed message of length ${message.length}")
+            println("->Hashed message of length ${message.length}")
 
         //message = newMessage
 
         val parts = n - v0
         if(debug)
-            println("-->Splitting mesage into $parts")
+            println("->Splitting mesage into $parts")
 
         val ret: ArrayList<Int> = ArrayList()
         val part = 1 + message.length / (parts + 1)
@@ -477,7 +477,7 @@ class RainbowKeygen(var N: Int = 32, var U: Int = 5, var K: Int = 8, val save: S
             ret.add(0)
 
         if(debug)
-            println("Done generating targets")
+            println("MQRainbow: Done generating targets")
 
         return ret
 
@@ -495,20 +495,22 @@ class RainbowKeygen(var N: Int = 32, var U: Int = 5, var K: Int = 8, val save: S
         // Load message (as n dimensional vector)
         // readText no es recomendado para archivos grandes
         if(debug)
-            println("  Reading message...")
+            println("->Reading message...")
         val message = File(msgFile).readText(Charsets.UTF_8)
 
         if(debug)
-            println("  generating targets")
+            println("->Generating targets")
         val y = generateTargets(privKey.privN, privKey.Flayer[0][0]["alphas"]!![0].size, privKey.privK, message)
         val yArray: Array<Int> = Array(y.size) {0}
         for(i in 0 until y.size)
             yArray[i] = y[i]
 
         if(debug)
-            println("  Message to sign: $message")
+            println("->Message to sign: $message")
 
         // Apply L1^(-1)
+        if(debug)
+            println("->Applying L1^-1")
         var ydash = GF256.addVectors(yArray, privKey.b1)
         ydash = GF256.multiplyMatrixVector(privKey.l1inv, ydash)
 
@@ -529,7 +531,7 @@ class RainbowKeygen(var N: Int = 32, var U: Int = 5, var K: Int = 8, val save: S
                     val consts = Array(ol) {0}
 
                     if (debug) {
-                        println("Layer $layer oils $ol vinegars $vl")
+                        println("->Layer $layer oils $ol vinegars $vl")
                     }
 
                     for (i:Int in 0 until ol) {
@@ -589,8 +591,8 @@ class RainbowKeygen(var N: Int = 32, var U: Int = 5, var K: Int = 8, val save: S
                     }
 
                     if (debug) {
-                        println(equations)
-                        println(consts)
+                        println("->Eq. $equations")
+                        println("->Const. $consts")
                     }
 
                     val start = x.size - v0
@@ -600,10 +602,10 @@ class RainbowKeygen(var N: Int = 32, var U: Int = 5, var K: Int = 8, val save: S
                     }
 
                     if (debug) {
-                        println(ydash.size)
+                        println("-->ydash size: ${ydash.size}")
                         println("$start $equations")
-                        println(start+equations.size)
-                        println(yDashSubset.size)
+                        println("-->star+eq. size: ${start+equations.size}")
+                        println("-->ydashSubset size: ${yDashSubset.size}")
                     }
 
                     val solns = GF256.solveEquation(equations, yDashSubset)
@@ -618,6 +620,9 @@ class RainbowKeygen(var N: Int = 32, var U: Int = 5, var K: Int = 8, val save: S
 
                     x = tempX
                 }
+
+                if(debug)
+                    println("->Applying L2^-1")
 
                 signature = GF256.addVectors(x, privKey.b2)
                 signature = GF256.multiplyMatrixVector(privKey.l2inv, signature)
@@ -645,6 +650,8 @@ class RainbowKeygen(var N: Int = 32, var U: Int = 5, var K: Int = 8, val save: S
 //           with open(keyFile, 'rb') as kFile:
 //              pubKey = dill.load(kFile)
 
+        if(debug)
+            println("MQRainbow: Init Verify")
         when (keyFile) {
             is PublicKeyClass -> publicKey = keyFile
             is String -> {
