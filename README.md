@@ -4,6 +4,7 @@ Implementación de esquema criptografico post-cuantico en base a polinomios cuad
 multivariables denominado Rainbow.
 Esta implementacion fue pensada como un trabajo sobre criptografia post-cuantica, 
 por lo que fue diseñado con un enfoque educativo y no practico.
+El paper sobre Rainbow se encuentra aquí: https://bit.ly/2vwckRw
 
 ## Forma de uso
 
