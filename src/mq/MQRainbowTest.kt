@@ -1,32 +1,37 @@
 package mq
 
 fun main() {
-    println("Initializing Raindom Keygen Object")
+    println("Initializing Rainbow Keygen Object")
     val myKeyObject = RainbowKeygen(save = "./")
 
-    println("Generating Random Elements")
-    for (i:Int in 0 until 10) {
-        print("${myKeyObject.generateRandomElement()} ")
-    }
-    print("\n")
+    println("Testing verify and sign methods.")
+    val testingFile = "C:\\Users\\thi-s\\Documents\\A6_S1\\Intro_Criptografia\\Proyecto\\MQCryptography\\src\\testSign.txt"
+    val rexFile = "C:\\Users\\thi-s\\Documents\\A6_S1\\Intro_Criptografia\\Proyecto\\MQCryptography\\src\\rexFile.txt"
 
-    var sign = myKeyObject.sign(myKeyObject.privateKey, "C:\\Users\\thi-s\\Documents\\A6_S1\\Intro_Criptografia\\Proyecto\\MQCryptography\\src\\testSign.txt")
+    var signTesting = myKeyObject.sign(myKeyObject.privateKey, testingFile)
 
-    var resultVerify = myKeyObject.verify(myKeyObject.publicKey, sign, "C:\\Users\\thi-s\\Documents\\A6_S1\\Intro_Criptografia\\Proyecto\\MQCryptography\\src\\testSign.txt")
-
-    if(resultVerify)
-        println("El mensaje esta correctamente autenticado")
+    println("Testing correct verify.")
+    var resultVerifyTesting = myKeyObject.verify(myKeyObject.publicKey, signTesting, testingFile)
+    if(resultVerifyTesting)
+        println("Results: Mensaje autentico")
     else
-        println("El mensaje no esta autenticado")
+        println("Results: Mensaje y firma no concuerdan")
 
-    var forgeSign = sign
-    forgeSign[0]++
+    var forgeTestingSign = signTesting
+    forgeTestingSign[0]++
 
-    var resultVerifyForge = myKeyObject.verify(myKeyObject.publicKey, forgeSign, "C:\\Users\\thi-s\\Documents\\A6_S1\\Intro_Criptografia\\Proyecto\\MQCryptography\\src\\testSign.txt")
-
+    println("Testing incorrect verify: change in sign.")
+    var resultVerifyForge = myKeyObject.verify(myKeyObject.publicKey, forgeTestingSign, testingFile)
     if(resultVerifyForge)
-        println("El mensaje esta correctamente autenticado")
+        println("Results: Mensaje autentico")
     else
-        println("El mensaje no esta autenticado")
+        println("Results: Mensaje y firma no concuerdan")
+
+    println("Testing incorrect verify: diferent message.")
+    var resultsForgeRex = myKeyObject.verify(myKeyObject.publicKey, signTesting, rexFile)
+    if(resultsForgeRex)
+        println("Results: Mensaje autentico")
+    else
+        println("Results: Mensaje y firma no concuerdan")
 
 }
