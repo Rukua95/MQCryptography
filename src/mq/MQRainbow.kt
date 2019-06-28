@@ -10,6 +10,7 @@ import kotlin.system.measureTimeMillis
 class RainbowKeygen(var N: Int = 32, var U: Int = 5, var K: Int = 8, val save: String = "", private val debug:Boolean=true) {
     private var V: Array<Int> = generateVinegars()
     private var F_layers: Array<Array<HashMap<String, Array<Array<Int>>>>> = generateCoefficients()
+
     var L1Affine = Affine(N - V[0], K, 666).generate()
     var L2Affine = Affine(N, K, 666).generate()
 
@@ -88,12 +89,14 @@ class RainbowKeygen(var N: Int = 32, var U: Int = 5, var K: Int = 8, val save: S
         }
     }
 */
+    // Class to define a set of polynomials for Rainbow scheme.
     class MyPolynomial(N: Int, V: Int) {
         var quadratic: Array<Array<Array<Int>>> = Array(N - V){Array(N) {Array(N) {0}}}
         var linear: Array<Array<Int>> = Array(N - V) {Array(N) {0}}
         var constant: Array<Int> = Array(N - V) {0}
     }
 
+    // Class to define the public key.
     class PublicKeyClass(val n: Int, val v0: Int, val k: Int) {
         var quads: Array<ArrayList<Int>> = Array(0) {ArrayList<Int>()}
         var linear: Array<Array<Int>> = Array(0) {Array(0) {0}}
@@ -107,6 +110,7 @@ class RainbowKeygen(var N: Int = 32, var U: Int = 5, var K: Int = 8, val save: S
 
     }
 
+    // Class to define the private key.
     class PrivateKeyClass {
         lateinit var l1: Array<Array<Int>>
         lateinit var l1inv: Array<Array<Int>>
@@ -140,7 +144,7 @@ class RainbowKeygen(var N: Int = 32, var U: Int = 5, var K: Int = 8, val save: S
 
     }
 
-    // Generate a cryptographically secure random number within the finite field..
+    // Generate a cryptographically secure random number within the finite field.
     fun generateRandomElement(): Int {
         var num: Int = GF256.get()
         while(num == 0)
@@ -150,7 +154,7 @@ class RainbowKeygen(var N: Int = 32, var U: Int = 5, var K: Int = 8, val save: S
 
     }
 
-    // Generate 2D matrix with random elements below k
+    // Generate 2D matrix with random elements below k.
     fun generateRandomMatrix(x: Int, y: Int, k: Int): Array<Array<Int>> {
         val mat: Array<Array<Int>> = Array(x) {Array(y) {0}}
         for(i in 0 until x) {
@@ -162,7 +166,7 @@ class RainbowKeygen(var N: Int = 32, var U: Int = 5, var K: Int = 8, val save: S
         return mat
     }
 
-    // Generate vinegar variables for 'u' layers where the last layer has 'n' vinegars
+    // Generate vinegar variables for 'u-1' layers where the last layer has 'n' vinegars.
     fun generateVinegars(): Array<Int> {
         if (debug)
             println("->MQRainbow: Generating vinegars variables...")
@@ -204,7 +208,8 @@ class RainbowKeygen(var N: Int = 32, var U: Int = 5, var K: Int = 8, val save: S
 
     }
 
-    // Generate F - coefficients below 'k' for every polynomial in the keys
+    // Generate F - coefficients below 'k' for every polynomial in the keys.
+    // Value K is not used.
     fun generateCoefficients(): Array<Array<HashMap<String, Array<Array<Int> > > > > {
         if (debug) {
             println("->MQRainbow: Generating coefficients...")
@@ -247,9 +252,9 @@ class RainbowKeygen(var N: Int = 32, var U: Int = 5, var K: Int = 8, val save: S
         return ret
     }
 
-    // Generates polynomials for the Map F
-    // (la generacion es capa por capa, generando ol polinomios por capa)
-    // (mas especificamente, entrega inmediatamente en polynomial la composicion de F con L2)
+    // Generates polynomials for the Map F.
+    // Polynomial are generated layer by layer, generating ol polynomials by layer.
+    // (more in detail, method return polynomials of the composition of F with L2)
     fun generatePolynomial(vl: Int, ol: Int, pcount: Int, coefficients: Array<HashMap<String, Array<Array<Int> > > >, polynomial: MyPolynomial): MyPolynomial {
         // Composition of F and L2.
         for(_i in 0 until ol) {

@@ -57,6 +57,7 @@ class GF256 {
             180, 11, 127, 81, 21, 67, 145, 16, 113, 187, 238, 191, 133, 200, 161
         )
 
+        // Generate a random number in the finite field.
         @JvmStatic
         fun get(): Int {
             return exponents[SecureRandom().nextInt(exponents.size)]
@@ -89,12 +90,11 @@ class GF256 {
             if (x == 0 || y == 0)
                 return 0
             else
-                // Suponiendo que de verdad es un espacio finito en 256, esto deberia ser modulo 256??
                 return exponents[(logarithms[x] + logarithms[y]) % 255]
 
         }
 
-        // Find the inverse of a number in the finite field
+        // Find the inverse of a number in the finite field.
         @JvmStatic
         fun getInverse(x: Int): Int {
             if (x !in 0..255) {
@@ -107,7 +107,7 @@ class GF256 {
 
         }
 
-        // Change elements below diagonal to 0.
+        // Change elements below diagonal to zero.
         // This method was created thinking to solve the problem of inverting a matrix or solving a linear equation
         // inverse == true  --> finding inverse of matrix
         // inverse == false --> solving linear equation
@@ -144,7 +144,7 @@ class GF256 {
         }
 
         // Change elements below diagonal to 0
-        // The matrix have the form n x 2n
+        // The matrix need to be of the form n x 2n
         @JvmStatic
         fun upperZeroMatrix(mat: Array<Array<Int>>): Array<Array<Int>> {
             var temp: Int = 0
@@ -170,6 +170,7 @@ class GF256 {
             return mat
         }
 
+        // Multiply two matrices.
         @JvmStatic
         fun multiplyMatrices(M1: Array<Array<Int>>, M2: Array<Array<Int>>): Array<Array<Int>> {
             val n1: Int = M1.size
@@ -194,6 +195,7 @@ class GF256 {
 
         }
 
+        // Find the inverse of a matrix.
         @JvmStatic
         fun findInverse(mat: Array<Array<Int>>): Array<Array<Int>> {
             try {
@@ -280,7 +282,7 @@ class GF256 {
 
         }
 
-        // Multiply a scalar and a vector
+        // Multiply a vector with a scalar within the finite field.
         @JvmStatic
         fun multiplyScalarVector(s: Int, v: Array<Int>): Array<Int> {
             val n = v.size
@@ -293,7 +295,7 @@ class GF256 {
         }
 
         // Multiply two vector.
-        // this vector multiplication always return a n x n matrix
+        // this vector multiplication always return a n x n matrix.
         @JvmStatic
         fun multiplyVectors(v1: Array<Int>, v2: Array<Int>): Array<Array<Int>> {
             if (v1.size != v2.size) {
@@ -327,7 +329,7 @@ class GF256 {
 
         }
 
-        // Add two matrices given by m1 and m2
+        // Add two matrices given by m1 and m2.
         @JvmStatic
         fun addMatrices(m1: Array<Array<Int>>, m2: Array<Array<Int>>): Array<Array<Int>> {
             if (m1.size != m2.size || m1[0].size != m2[0].size)
@@ -345,9 +347,9 @@ class GF256 {
 
         }
 
-        // Backward substitution method to find x given m1 * x = v
+        // Backward substitution method to find x given m1 * x = v.
         // In the code, this methods its aplied after lowerZeroMatrix
-        // size of matrix M1 is of the form n x (n+1)
+        // size of matrix M1 is of the form n x (n+1).
         @JvmStatic
         fun substitute(M1: Array<Array<Int>>, v: Array<Int>): Array<Int> {
             val n1: Int = M1.size
@@ -380,7 +382,7 @@ class GF256 {
 
         }
 
-        // Solve a system of linear equation of the form : m1 * x = v
+        // Solve a system of linear equation of the form : m1 * x = v.
         @JvmStatic
         fun solveEquation(M: Array<Array<Int>>, v: Array<Int>): Array<Int> {
             val n1: Int = M.size
